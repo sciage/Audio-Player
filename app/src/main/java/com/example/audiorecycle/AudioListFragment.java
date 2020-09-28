@@ -25,7 +25,7 @@ import java.util.List;
 import butterknife.ButterKnife;
 
 
-public class AudioListFragment extends Fragment implements ActivityToFragment {
+public class AudioListFragment extends Fragment implements ActivityToFragment, MediaPlayerUtils.Listener {
 
     private static final String TAG = "AudioListFragment";
     HostInterface hostInterface;
@@ -80,12 +80,8 @@ public class AudioListFragment extends Fragment implements ActivityToFragment {
 
 
     private void setRecyclerViewAdapter(List<String> audioList) {
-        AudioListAdapter adapter = new AudioListAdapter(getActivity(), audioList);
+        AudioListAdapter adapter = new AudioListAdapter(getActivity(), audioList, this);
         recyclerView.setAdapter(adapter);
-    }
-
-    public List<AudioStatus> getAudioStatusList() {
-        return audioStatusList;
     }
 
     @Override
@@ -138,4 +134,20 @@ public class AudioListFragment extends Fragment implements ActivityToFragment {
         super.onDestroy();
         MediaPlayerUtils.releaseMediaPlayer();
     }
+
+    @Override
+    public void onAudioComplete() {
+        onAudioCompleteFragment();
+    }
+
+    @Override
+    public void onAudioUpdate(int currentPosition) {
+        onAudioUpdateFragment(currentPosition);
+    }
+
+    @Override
+    public List<AudioStatus> updateList() {
+        return audioStatusList;
+    }
+
 }

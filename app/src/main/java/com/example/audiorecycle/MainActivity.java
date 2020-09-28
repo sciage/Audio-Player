@@ -20,13 +20,10 @@ import com.example.audiorecycle.audio.R;
 import com.example.audiorecycle.interfaces.HostInterface;
 import com.example.audiorecycle.utils.MediaPlayerUtils;
 
-public class MainActivity extends AppCompatActivity implements HostInterface, MediaPlayerUtils.Listener{
+public class MainActivity extends AppCompatActivity implements HostInterface{
 
 
     private static final String TAG = "MainActivity";
-
-    private boolean doubleBackToExitPressedOnce = false;
-
     private Parcelable state;
     private AudioListFragment audioListFragment=new AudioListFragment();
     private static final int RC_PERMISSION = 1001;
@@ -40,22 +37,6 @@ public class MainActivity extends AppCompatActivity implements HostInterface, Me
         requestPermissionIfNeeded();
 
     }
-
-
-    public List<AudioStatus> getAudioList(){
-        return audioListFragment.getAudioStatusList();
-    }
-
-    @Override
-    public void onAudioUpdate(int currentPosition) {
-        audioListFragment.onAudioUpdateFragment(currentPosition);
-    }
-
-    @Override
-    public void onAudioComplete() {
-        audioListFragment.onAudioCompleteFragment();
-    }
-
 
     @Override
     public void onPause() {
@@ -87,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements HostInterface, Me
         fTransaction.commit();
     }
 
-    ////////////////////// Permission /////////////////////
     public boolean requestPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -102,27 +82,5 @@ public class MainActivity extends AppCompatActivity implements HostInterface, Me
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-    ///////////////////////////////////////////////////////
-
-    ////////////////////Exit From App///////////////////////
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            System.exit(0);
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, R.string.press_back_again, Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
-            }
-        }, 2000);
-    }
-
 
 }

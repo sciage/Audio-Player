@@ -29,13 +29,15 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
     private List<String> audioList = new ArrayList<>();
     private MainActivity mainActivity;
     private View view;
+    private MediaPlayerUtils.Listener listener;
 
-    public AudioListAdapter(Context context, List<String> contactList) {
+    public AudioListAdapter(Context context, List<String> contactList, MediaPlayerUtils.Listener listener) {
         this.context = context;
         this.audioList = contactList;
         if (context instanceof MainActivity) {
             this.mainActivity = (MainActivity) context;
         }
+        this.listener = listener;
     }
 
     @Override
@@ -50,8 +52,8 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
         String songName = songPath.substring(songPath.lastIndexOf("/") + 1);
         holder.txtSongName.setText(songName);
 
-        if (mainActivity.getAudioList().get(position).getAudioState() == AudioStatus.AUDIO_STATE.IDLE.ordinal()
-                || mainActivity.getAudioList().get(position).getAudioState() == AudioStatus.AUDIO_STATE.PAUSED.ordinal()) {
+        if (listener.updateList().get(position).getAudioState() == AudioStatus.AUDIO_STATE.IDLE.ordinal()
+                || listener.updateList().get(position).getAudioState() == AudioStatus.AUDIO_STATE.PAUSED.ordinal()) {
 
             holder.btnPlay.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_play_button));
         } else {
@@ -80,21 +82,21 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
                 @Override
                 public void onClick(View view) {
 
-                    boolean ifRequest = mainActivity.requestPermissionIfNeeded();
-                    if (ifRequest) return;
+//                    boolean ifRequest = mainActivity.requestPermissionIfNeeded();
+//                    if (ifRequest) return;
 
                     int position = getAdapterPosition();
 
                     // Check if any other audio is playing
-                    if (mainActivity.getAudioList().get(position).getAudioState()
+                    if (listener.updateList().get(position).getAudioState()
                             == AudioStatus.AUDIO_STATE.IDLE.ordinal()) {
                         // Reset media player
-                        MediaPlayerUtils.Listener listener = (MediaPlayerUtils.Listener) context;
+//                        MediaPlayerUtils.Listener listener = (MediaPlayerUtils.Listener) context;
                         listener.onAudioComplete();
                     }
 
                     String audioPath = audioList.get(position);
-                    AudioStatus audioStatus = mainActivity.getAudioList().get(position);
+                    AudioStatus audioStatus = listener.updateList().get(position);
                     int currentAudioState = audioStatus.getAudioState();
 
                     if (currentAudioState == AudioStatus.AUDIO_STATE.PLAYING.ordinal()) {
@@ -103,25 +105,25 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
                         MediaPlayerUtils.pauseMediaPlayer();
 
                         audioStatus.setAudioState(AudioStatus.AUDIO_STATE.PAUSED.ordinal());
-                        mainActivity.getAudioList().set(position, audioStatus);
+                        listener.updateList().set(position, audioStatus);
                     } else if (currentAudioState == AudioStatus.AUDIO_STATE.PAUSED.ordinal()) {
                         // If mediaPlayer is paused, play mediaPlayer
                         btnPlay.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pause));
                         MediaPlayerUtils.playMediaPlayer();
 
                         audioStatus.setAudioState(AudioStatus.AUDIO_STATE.PLAYING.ordinal());
-                        mainActivity.getAudioList().set(position, audioStatus);
+                        listener.updateList().set(position, audioStatus);
                     } else {
 
                         // If mediaPlayer is in idle state, start and play mediaPlayer
                         btnPlay.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pause));
                         audioStatus.setAudioState(AudioStatus.AUDIO_STATE.PLAYING.ordinal());
-                        mainActivity.getAudioList().set(position, audioStatus);
+                        listener.updateList().set(position, audioStatus);
 
                         try {
-                            MediaPlayerUtils.startAndPlayMediaPlayer(audioPath, (MediaPlayerUtils.Listener) context,context);
+                            MediaPlayerUtils.startAndPlayMediaPlayer(audioPath, listener, context);
                             audioStatus.setTotalDuration(MediaPlayerUtils.getTotalDuration());
-                            mainActivity.getAudioList().set(position, audioStatus);
+                            listener.updateList().set(position, audioStatus);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

@@ -10,9 +10,11 @@ import android.os.Handler;
 import android.util.Log;
 
 
+import com.example.audiorecycle.AudioStatus;
 import com.example.audiorecycle.audio.R;
 
 import java.io.IOException;
+import java.util.List;
 
 public class MediaPlayerUtils {
 
@@ -116,6 +118,8 @@ public class MediaPlayerUtils {
         void onAudioComplete();
 
         void onAudioUpdate(int currentPosition);
+
+        List<AudioStatus> updateList();
     }
 
 
